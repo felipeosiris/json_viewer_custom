@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic JSON Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .json-viewer {
+            background-color: #f4f4f4;
+            border-radius: 5px;
+            padding: 20px;
+        }
+        .json-key {
+            color: #881391;
+            font-weight: bold;
+        }
+        .json-string {
+            color: #1a1aa6;
+        }
+        .json-number {
+            color: #1e8013;
+        }
+        .json-boolean {
+            color: #ff8c00;
+        }
+        .json-null {
+            color: #808080;
+        }
+        .collapsible {
+            cursor: pointer;
+            user-select: none;
+        }
+        .collapsible::before {
+            content: '▶';
+            display: inline-block;
+            margin-right: 5px;
+            transition: transform 0.3s;
+        }
+        .collapsible.active::before {
+            transform: rotate(90deg);
+        }
+        .content {
+            display: none;
+            margin-left: 20px;
+        }
+        .content.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dynamic JSON Viewer</h1>
+    <div id="json-viewer" class="json-viewer"></div>
+
+    <script>
+        function createJsonViewer(jsonData, parentElement) {
+            for (const [key, value] of Object.entries(jsonData)) {
+                const keyElement = document.createElement('span');
+                keyElement.classList.add('json-key');
+                keyElement.textContent = `${key}: `;
+                
+                const valueElement = document.createElement('span');
+                
+                if (typeof value === 'object' && value !== null) {
+                    const collapsibleElement = document.createElement('span');
+                    collapsibleElement.classList.add('collapsible');
+                    collapsibleElement.appendChild(keyElement);
+                    parentElement.appendChild(collapsibleElement);
+                    
+                    const contentElement = document.createElement('div');
+                    contentElement.classList.add('content');
+                    createJsonViewer(value, contentElement);
+                    parentElement.appendChild(contentElement);
+                    
+                    collapsibleElement.addEventListener('click', () => {
+                        collapsibleElement.classList.toggle('active');
+                        contentElement.classList.toggle('show');
+                    });
+                } else {
+                    parentElement.appendChild(keyElement);
+                    valueElement.classList.add(`json-${typeof value}`);
+                    valueElement.textContent = JSON.stringify(value);
+                    parentElement.appendChild(valueElement);
+                }
+                
+                parentElement.appendChild(document.createElement('br'));
+            }
+        }
+
+        fetch('data.json')
+            .then(response => response.json())
+            .then(jsonData => {
+                const jsonViewer = document.getElementById('json-viewer');
+                createJsonViewer(jsonData, jsonViewer);
+            })
+            .catch(error => {
+                console.error('Error loading JSON data:', error);
+                const jsonViewer = document.getElementById('json-viewer');
+                jsonViewer.textContent = 'Error loading JSON data. Please make sure data.json is present and valid.';
+            });
+    </script>
+</body>
+</html>
