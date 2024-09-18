@@ -7,32 +7,52 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            line-height: 1.6;
+            background-color: #f9f9f9;
             color: #333;
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 20px;
         }
+        h1 {
+            color: #ff6600; /* Chedraui naranja */
+            text-align: center;
+            font-size: 2.5rem;
+        }
         .json-viewer {
-            background-color: #f4f4f4;
-            border-radius: 5px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             padding: 20px;
+            margin-bottom: 20px;
+        }
+        .json-card {
+            background-color: #f1f5f8; /* Ligero azul gris */
+            border: 1px solid #dcdcdc;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease-in-out;
+        }
+        .json-card:hover {
+            background-color: #e1ecf4;
+            border-color: #a6c0d2;
         }
         .json-key {
-            color: #881391;
+            color: #003f87; /* Chedraui azul */
             font-weight: bold;
+            cursor: pointer;
         }
         .json-string {
-            color: #1a1aa6;
+            color: #ff6600; /* Chedraui naranja */
         }
         .json-number {
-            color: #1e8013;
+            color: #28a745;
         }
         .json-boolean {
             color: #ff8c00;
         }
         .json-null {
-            color: #808080;
+            color: #6c757d;
         }
         .collapsible {
             cursor: pointer;
@@ -50,6 +70,7 @@
         .content {
             display: none;
             margin-left: 20px;
+            padding-top: 10px;
         }
         .content.show {
             display: block;
@@ -57,41 +78,44 @@
     </style>
 </head>
 <body>
-    <h1>Dynamic JSON Viewer</h1>
+    <h1>Visor Dinámico de JSON</h1>
     <div id="json-viewer" class="json-viewer"></div>
 
     <script>
         function createJsonViewer(jsonData, parentElement) {
             for (const [key, value] of Object.entries(jsonData)) {
+                const cardElement = document.createElement('div');
+                cardElement.classList.add('json-card');
+                
                 const keyElement = document.createElement('span');
                 keyElement.classList.add('json-key');
                 keyElement.textContent = `${key}: `;
-                
+
                 const valueElement = document.createElement('span');
                 
                 if (typeof value === 'object' && value !== null) {
                     const collapsibleElement = document.createElement('span');
                     collapsibleElement.classList.add('collapsible');
                     collapsibleElement.appendChild(keyElement);
-                    parentElement.appendChild(collapsibleElement);
+                    cardElement.appendChild(collapsibleElement);
                     
                     const contentElement = document.createElement('div');
                     contentElement.classList.add('content');
                     createJsonViewer(value, contentElement);
-                    parentElement.appendChild(contentElement);
+                    cardElement.appendChild(contentElement);
                     
                     collapsibleElement.addEventListener('click', () => {
                         collapsibleElement.classList.toggle('active');
                         contentElement.classList.toggle('show');
                     });
                 } else {
-                    parentElement.appendChild(keyElement);
+                    cardElement.appendChild(keyElement);
                     valueElement.classList.add(`json-${typeof value}`);
                     valueElement.textContent = JSON.stringify(value);
-                    parentElement.appendChild(valueElement);
+                    cardElement.appendChild(valueElement);
                 }
-                
-                parentElement.appendChild(document.createElement('br'));
+
+                parentElement.appendChild(cardElement);
             }
         }
 
